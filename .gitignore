@@ -1,0 +1,12 @@
+# Secrets & local config
+.env
+.claude/settings.local.json
+.claude/worktrees/
+
+# Generated data (the AniList cache lives in the Plex dir, outside this repo)
+anilist_cache.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc

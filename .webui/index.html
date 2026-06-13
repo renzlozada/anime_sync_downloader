@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anime Library</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+
+<!-- ============ Top bar ============ -->
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand" id="brand">ANIME<b>·</b>LIBRARY</div>
+    <nav class="nav-links">
+      <a class="on">Library</a>
+      <a>Airing</a>
+      <a>Queue</a>
+    </nav>
+    <div class="spacer"></div>
+    <label class="dryrun" title="Preview only — nothing is added to qBittorrent">
+      <input type="checkbox" id="dryRun"><span class="box"></span>Dry run
+    </label>
+    <div class="status-pill on" id="qbit"><span class="led"></span>qBittorrent</div>
+    <button class="btn" id="addBtn">+ Add anime</button>
+    <button class="btn pink" id="syncBtn">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-3-6.7M21 4v4h-4"/></svg>
+      Sync library
+    </button>
+  </div>
+</header>
+
+<!-- ============ Ticker ============ -->
+<div class="ticker" id="ticker"></div>
+
+<main class="wrap">
+
+  <!-- Masthead -->
+  <section class="masthead">
+    <div class="masthead-row">
+      <h1 class="display"><span class="clip-reveal"><span style="animation-delay:.05s">The</span></span> <span class="clip-reveal"><span style="animation-delay:.14s">Shelf</span></span></h1>
+      <div class="sub">Everything you're collecting, tracked <b>episode by episode</b> — sourced, scored, and up to date.</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <!-- Featured -->
+  <section class="featured" id="featured"></section>
+
+  <!-- Sync banner -->
+  <section class="sync-banner hidden" id="syncBanner">
+    <div class="sync-head">
+      <svg class="gear" id="syncGear" viewBox="0 0 24 24" fill="none" stroke="#16120e" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.5 7.5 0 000-2l2-1.5-2-3.4-2.3 1a7.5 7.5 0 00-1.7-1L17 3.5h-4l-.4 2.6a7.5 7.5 0 00-1.7 1l-2.3-1-2 3.4L6.6 11a7.5 7.5 0 000 2l-2 1.5 2 3.4 2.3-1a7.5 7.5 0 001.7 1l.4 2.6h4l.4-2.6a7.5 7.5 0 001.7-1l2.3 1 2-3.4-2-1.5z"/></svg>
+      <div class="ph" id="syncPhase">Starting…</div>
+      <span class="mode" id="syncMode" style="display:none">dry run</span>
+      <div class="spacer"></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="syncProgress"></div></div>
+    <div class="sync-log" id="syncLog"></div>
+    <div class="sync-summary" id="syncSummary"></div>
+  </section>
+
+  <!-- Library -->
+  <div class="section-bar">
+    <h3 class="display">In your library <span id="gridCount"></span></h3>
+    <div class="spacer"></div>
+    <div class="filters" id="filters"></div>
+  </div>
+  <section class="grid" id="grid"></section>
+
+</main>
+
+<!-- ============ Detail spread ============ -->
+<div class="spread hidden" id="spread">
+  <button class="btn ink spread-back" id="spreadBack">← Library</button>
+  <div id="spreadInner"></div>
+</div>
+
+<!-- ============ Add modal ============ -->
+<div class="overlay hidden" id="addOverlay">
+  <div class="modal">
+    <button class="modal-close" id="addClose">&times;</button>
+    <div class="modal-body" id="addContent"></div>
+  </div>
+</div>
+
+<!-- ============ Downloads strip ============ -->
+<div class="dl-strip collapsed" id="dlStrip">
+  <div class="dl-head" id="dlHead">
+    <span class="live"></span>
+    <span id="dlCount">0 downloading</span>
+    <span class="sp" id="dlSpeed"></span>
+    <span class="caret" id="dlCaret">▴</span>
+  </div>
+  <div class="dl-items" id="dlItems"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="tweaksRoot"></div>
+
+<script src="/ui/app.js"></script>
+
+<!-- Tweaks (React island — panel only; applies to the vanilla app via CSS vars + body classes) -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="/ui/tweaks-panel.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#ff3d77",
+  "mark": "#bcd2ff",
+  "motion": true,
+  "ticker": true
+}/*EDITMODE-END*/;
+
+function applyTweaks(t) {
+  const root = document.documentElement;
+  root.style.setProperty("--accent", t.accent);
+  root.style.setProperty("--pink", t.accent);
+  root.style.setProperty("--mark", t.mark);
+  const off = !t.motion;
+  document.body.classList.toggle("motion-off", off);
+  if (off) document.body.classList.remove("anim");
+  else if (!document.hidden) requestAnimationFrame(() => document.body.classList.add("anim"));
+  const tk = document.getElementById("ticker");
+  if (tk) tk.style.display = t.ticker ? "" : "none";
+}
+
+function TweaksApp() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  React.useEffect(() => { applyTweaks(t); }, [t]);
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Brand color" />
+      <TweakColor label="Accent" value={t.accent}
+        options={["#ff3d77", "#2d52ff", "#e5484d", "#7b3dff", "#1f9e57"]}
+        onChange={(v) => setTweak("accent", v)} />
+      <TweakColor label="Highlighter" value={t.mark}
+        options={["#ffd84d", "#a6f0c6", "#bcd2ff", "#ffc4dd"]}
+        onChange={(v) => setTweak("mark", v)} />
+      <TweakSection label="Motion" />
+      <TweakToggle label="Animations" value={t.motion} onChange={(v) => setTweak("motion", v)} />
+      <TweakToggle label="Headline ticker" value={t.ticker} onChange={(v) => setTweak("ticker", v)} />
+    </TweaksPanel>
+  );
+}
+ReactDOM.createRoot(document.getElementById("tweaksRoot")).render(<TweaksApp />);
+</script>
+</body>
+</html>
